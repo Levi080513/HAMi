@@ -21,6 +21,17 @@ on:
       tagoverride:
         required: false
         type: string
+  workflow_dispatch: :
+    inputs:
+      ref:
+        required: true
+        type: string
+      suffix:
+        required: false
+        type: string
+      tagoverride:
+        required: false
+        type: string
 permissions:
   contents: read
 
