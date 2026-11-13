@@ -21,7 +21,7 @@ on:
       tagoverride:
         required: false
         type: string
-  workflow_dispatch: :
+  workflow_dispatch:
     inputs:
       ref:
         required: true
