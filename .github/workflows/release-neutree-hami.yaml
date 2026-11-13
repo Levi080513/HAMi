@@ -12,6 +12,11 @@ on:
         description: Tag to publish to docker.io/neutree/hami
         required: true
         type: string
+      hamicore_version:
+        description: Existing projecthami/hamicore tag to use and match in the built library
+        required: true
+        default: v2.10.0
+        type: string
 
 permissions:
   contents: read
@@ -22,9 +27,9 @@ concurrency:
 
 env:
   IMAGE: docker.io/neutree/hami
-  # VERSION also selects the versioned library from the existing core image.
-  HAMI_VERSION: v2.10.0
-  HAMICORE_IMAGE: docker.io/projecthami/hamicore:v2.10.0@sha256:66d447de8127f5600ab153673894a42a6d740faa42129528b0e44bd81d8bfda3
+  # HAMI_VERSION also selects the versioned library from the existing core image.
+  HAMI_VERSION: ${{ inputs.hamicore_version }}
+  HAMICORE_IMAGE: docker.io/projecthami/hamicore:${{ inputs.hamicore_version }}
 
 jobs:
   release:
@@ -36,12 +41,16 @@ jobs:
       - name: Validate image tag
         env:
           IMAGE_TAG: ${{ inputs.image_tag }}
+          HAMICORE_VERSION: ${{ inputs.hamicore_version }}
         shell: bash
         run: |
-          if [[ ! "$IMAGE_TAG" =~ ^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,127}$ ]]; then
-            echo "::error::image_tag must be a valid Docker tag of at most 128 characters"
-            exit 1
-          fi
+          for value_name in IMAGE_TAG HAMICORE_VERSION; do
+            value="${!value_name}"
+            if [[ ! "$value" =~ ^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,127}$ ]]; then
+              echo "::error::$value_name must be a valid Docker tag of at most 128 characters"
+              exit 1
+            fi
+          done
 
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
